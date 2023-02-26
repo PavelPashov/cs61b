@@ -1,6 +1,7 @@
 package game2048;
 
 import java.util.Formatter;
+import java.util.Iterator;
 import java.util.Observable;
 
 
@@ -110,6 +111,7 @@ public class Model extends Observable {
         boolean changed;
         changed = false;
 
+        System.out.println(side.col());
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
@@ -138,7 +140,14 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
-        return false;
+        boolean hasNoEmtpySpace = false;
+        for (Tile tile : b) {
+            if (tile == null) {
+                hasNoEmtpySpace = true;
+                break;
+            }
+        }
+        return hasNoEmtpySpace;
     }
 
     /**
@@ -147,8 +156,38 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
-        return false;
+        boolean isMaxTile = false;
+        for (Tile tile : b) {
+            if (tile != null && tile.value() == 2048) {
+                isMaxTile = true;
+                break;
+            }
+        }
+        return isMaxTile;
+    }
+
+
+    public static boolean oneMoveExistsPerColumnOrRow(int[][] arrays) {
+        boolean isValidMove = false;
+
+        for (int[] array : arrays) {
+            int lastValue = 0;
+
+            for (int value : array) {
+                if (value != 0 && value == lastValue) {
+                    isValidMove = true;
+
+                    break;
+                }
+
+                lastValue = value;
+            }
+
+            if (isValidMove) {
+                break;
+            }
+        }
+        return isValidMove;
     }
 
     /**
@@ -158,8 +197,22 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
-        return false;
+        if (emptySpaceExists(b)) {
+            return true;
+        }
+
+        int size = b.size();
+        int[][] rows = new int[size][size];
+        int[][] columns = new int[size][size];
+
+        for (Tile tile : b) {
+            if (tile != null) {
+                rows[tile.row()][tile.col()] = tile.value();
+                columns[tile.col()][tile.row()] = tile.value();
+            }
+        }
+
+        return oneMoveExistsPerColumnOrRow(rows) || oneMoveExistsPerColumnOrRow(columns);
     }
 
 
