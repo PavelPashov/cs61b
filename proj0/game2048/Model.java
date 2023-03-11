@@ -1,12 +1,10 @@
 package game2048;
 
-import java.util.Formatter;
-import java.util.Iterator;
-import java.util.Observable;
+import java.util.*;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author Pavel Pashov
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -111,15 +109,58 @@ public class Model extends Observable {
         boolean changed;
         changed = false;
 
-        System.out.println(side.col());
-        // TODO: Modify this.board (and perhaps this.score) to account
-        // for the tilt to the Side SIDE. If the board changed, set the
-        // changed local variable to true.
+        board.setViewingPerspective(side);
+
+        for (int column = 0; column < board.size(); column++) {
+            int topIndex = board.size() - 1;
+            int topEmptyIndex = -1;
+            int lastMergeIndex = -1;
+
+            for (int row = board.size() - 2; row >= 0; row--) {
+
+                Tile currentTile = board.tile(column, row);
+
+                if (currentTile == null) {
+                    topEmptyIndex = Math.max(row, topEmptyIndex);
+                    continue;
+                }
+
+                Tile topTile = board.tile(column, topIndex);
+
+                if (topTile == null) {
+                    board.move(column, topIndex, currentTile);
+
+                    topEmptyIndex = row;
+                    changed = true;
+
+                } else if (topTile.value() == currentTile.value() && lastMergeIndex != topIndex) {
+
+                    board.move(column, topIndex, currentTile);
+                    score +=  currentTile.value() * 2;
+
+                    topEmptyIndex = row;
+                    lastMergeIndex = topIndex;
+                    changed = true;
+
+                } else if (topEmptyIndex >= 0) {
+                    board.move(column, topEmptyIndex, currentTile);
+                    topIndex = topEmptyIndex;
+                    topEmptyIndex = row;
+                    changed = true;
+                } else {
+                    topIndex = row;
+                }
+            }
+        }
+
 
         checkGameOver();
         if (changed) {
             setChanged();
         }
+
+        board.setViewingPerspective(Side.NORTH);
+
         return changed;
     }
 
@@ -201,6 +242,15 @@ public class Model extends Observable {
             return true;
         }
 
+        Map<String, int[][]> rowsAndColumnsMap = getColumnsAndRows(b);
+
+        int[][] rows = rowsAndColumnsMap.get("rows");
+        int[][] columns = rowsAndColumnsMap.get("columns");
+
+        return oneMoveExistsPerColumnOrRow(rows) || oneMoveExistsPerColumnOrRow(columns);
+    }
+
+    public static Map<String, int[][]> getColumnsAndRows(Board b) {
         int size = b.size();
         int[][] rows = new int[size][size];
         int[][] columns = new int[size][size];
@@ -212,7 +262,11 @@ public class Model extends Observable {
             }
         }
 
-        return oneMoveExistsPerColumnOrRow(rows) || oneMoveExistsPerColumnOrRow(columns);
+        Map<String, int[][]> map = new HashMap<>();
+        map.put("rows", rows);
+        map.put("columns", columns);
+
+        return map;
     }
 
 
