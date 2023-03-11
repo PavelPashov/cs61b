@@ -1,11 +1,10 @@
 package game2048;
 
-import java.util.Formatter;
-import java.util.Observable;
+import java.util.*;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author Pavel Pashov
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -110,14 +109,58 @@ public class Model extends Observable {
         boolean changed;
         changed = false;
 
-        // TODO: Modify this.board (and perhaps this.score) to account
-        // for the tilt to the Side SIDE. If the board changed, set the
-        // changed local variable to true.
+        board.setViewingPerspective(side);
+
+        for (int column = 0; column < board.size(); column++) {
+            int topIndex = board.size() - 1;
+            int topEmptyIndex = -1;
+            int lastMergeIndex = -1;
+
+            for (int row = board.size() - 2; row >= 0; row--) {
+
+                Tile currentTile = board.tile(column, row);
+
+                if (currentTile == null) {
+                    topEmptyIndex = Math.max(row, topEmptyIndex);
+                    continue;
+                }
+
+                Tile topTile = board.tile(column, topIndex);
+
+                if (topTile == null) {
+                    board.move(column, topIndex, currentTile);
+
+                    topEmptyIndex = row;
+                    changed = true;
+
+                } else if (topTile.value() == currentTile.value() && lastMergeIndex != topIndex) {
+
+                    board.move(column, topIndex, currentTile);
+                    score +=  currentTile.value() * 2;
+
+                    topEmptyIndex = row;
+                    lastMergeIndex = topIndex;
+                    changed = true;
+
+                } else if (topEmptyIndex >= 0) {
+                    board.move(column, topEmptyIndex, currentTile);
+                    topIndex = topEmptyIndex;
+                    topEmptyIndex = row;
+                    changed = true;
+                } else {
+                    topIndex = row;
+                }
+            }
+        }
+
 
         checkGameOver();
         if (changed) {
             setChanged();
         }
+
+        board.setViewingPerspective(Side.NORTH);
+
         return changed;
     }
 
@@ -138,7 +181,14 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
-        return false;
+        boolean hasNoEmtpySpace = false;
+        for (Tile tile : b) {
+            if (tile == null) {
+                hasNoEmtpySpace = true;
+                break;
+            }
+        }
+        return hasNoEmtpySpace;
     }
 
     /**
@@ -147,8 +197,38 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
-        return false;
+        boolean isMaxTile = false;
+        for (Tile tile : b) {
+            if (tile != null && tile.value() == 2048) {
+                isMaxTile = true;
+                break;
+            }
+        }
+        return isMaxTile;
+    }
+
+
+    public static boolean oneMoveExistsPerColumnOrRow(int[][] arrays) {
+        boolean isValidMove = false;
+
+        for (int[] array : arrays) {
+            int lastValue = 0;
+
+            for (int value : array) {
+                if (value != 0 && value == lastValue) {
+                    isValidMove = true;
+
+                    break;
+                }
+
+                lastValue = value;
+            }
+
+            if (isValidMove) {
+                break;
+            }
+        }
+        return isValidMove;
     }
 
     /**
@@ -158,8 +238,35 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
-        return false;
+        if (emptySpaceExists(b)) {
+            return true;
+        }
+
+        Map<String, int[][]> rowsAndColumnsMap = getColumnsAndRows(b);
+
+        int[][] rows = rowsAndColumnsMap.get("rows");
+        int[][] columns = rowsAndColumnsMap.get("columns");
+
+        return oneMoveExistsPerColumnOrRow(rows) || oneMoveExistsPerColumnOrRow(columns);
+    }
+
+    public static Map<String, int[][]> getColumnsAndRows(Board b) {
+        int size = b.size();
+        int[][] rows = new int[size][size];
+        int[][] columns = new int[size][size];
+
+        for (Tile tile : b) {
+            if (tile != null) {
+                rows[tile.row()][tile.col()] = tile.value();
+                columns[tile.col()][tile.row()] = tile.value();
+            }
+        }
+
+        Map<String, int[][]> map = new HashMap<>();
+        map.put("rows", rows);
+        map.put("columns", columns);
+
+        return map;
     }
 
 
