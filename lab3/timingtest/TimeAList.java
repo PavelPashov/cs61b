@@ -27,7 +27,7 @@ public class TimeAList {
         AList<Integer> opCounts = new AList<>();
 
         int size = 1000;
-        int maxSize = 20000000;
+        int maxSize = 128000;
 
         while (size <= maxSize) {
             AList<Integer> testList = new AList<>();
