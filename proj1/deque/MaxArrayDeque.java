@@ -5,8 +5,8 @@ import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 
-public class MaxArrayDeque<T> extends ArrayDeque<T> implements Iterable<T> {
-    Comparator<T> comparator;
+public class MaxArrayDeque<T> extends ArrayDeque<T> {
+    private final Comparator<T> comparator;
 
     public MaxArrayDeque(Comparator<T> c) {
         super();
@@ -18,7 +18,7 @@ public class MaxArrayDeque<T> extends ArrayDeque<T> implements Iterable<T> {
             return null;
         }
 
-        T maxItem = null;
+        T maxItem = this.get(0);
 
         for (T item : this) {
             int result = comparator.compare(item, maxItem);
@@ -36,7 +36,7 @@ public class MaxArrayDeque<T> extends ArrayDeque<T> implements Iterable<T> {
             return null;
         }
 
-        T maxItem = null;
+        T maxItem = this.get(0);
 
         for (T item : this) {
             int result = c.compare(item, maxItem);
