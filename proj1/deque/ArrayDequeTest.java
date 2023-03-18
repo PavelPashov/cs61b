@@ -2,7 +2,10 @@ package deque;
 
 import org.junit.Test;
 
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -84,8 +87,8 @@ public class ArrayDequeTest {
     @Test
     /* Check if you can create ArrayDeques with different parameterized types*/
     public void multipleParamTest() {
-        ArrayDeque<String>  arrayDeque1 = new ArrayDeque<String>();
-        ArrayDeque<Double>  arrayDeque2 = new ArrayDeque<Double>();
+        ArrayDeque<String> arrayDeque1 = new ArrayDeque<String>();
+        ArrayDeque<Double> arrayDeque2 = new ArrayDeque<Double>();
         ArrayDeque<Boolean> arrayDeque3 = new ArrayDeque<Boolean>();
 
         arrayDeque1.addFirst("string");
@@ -131,16 +134,16 @@ public class ArrayDequeTest {
 
     @Test
     public void checkEqualsTrueTest() {
-        ArrayDeque<String> firstIntList = new ArrayDeque<String>();
-        ArrayDeque<String> secondIntList = new ArrayDeque<String>();
+        ArrayDeque<String> firstarrayDeque = new ArrayDeque<String>();
+        ArrayDeque<String> secondarrayDeque = new ArrayDeque<String>();
 
-        firstIntList.addFirst("second");
-        firstIntList.addFirst("first");
+        firstarrayDeque.addFirst("second");
+        firstarrayDeque.addFirst("first");
 
-        secondIntList.addFirst("second");
-        secondIntList.addFirst("first");
+        secondarrayDeque.addFirst("second");
+        secondarrayDeque.addFirst("first");
 
-        assertTrue(firstIntList.equals(secondIntList));
+        assertTrue(firstarrayDeque.equals(secondarrayDeque));
     }
 
     @Test
@@ -155,56 +158,135 @@ public class ArrayDequeTest {
 
     @Test
     public void checkEqualsFalseTypesTest() {
-        ArrayDeque<Integer> intList = new ArrayDeque<Integer>();
+        ArrayDeque<Integer> arrayDeque = new ArrayDeque<Integer>();
         ArrayDeque<String> stringList = new ArrayDeque<String>();
 
-        intList.addFirst(1);
-        intList.addFirst(2);
+        arrayDeque.addFirst(1);
+        arrayDeque.addFirst(2);
         stringList.addFirst("1");
         stringList.addFirst("2");
 
-        assertFalse(intList.equals(stringList));
+        assertFalse(arrayDeque.equals(stringList));
     }
 
     @Test
     public void checkEqualsFalseLengthTest() {
-        ArrayDeque<Integer> firstIntList = new ArrayDeque<Integer>();
-        ArrayDeque<Integer> secondIntList = new ArrayDeque<Integer>();
+        ArrayDeque<Integer> firstarrayDeque = new ArrayDeque<Integer>();
+        ArrayDeque<Integer> secondarrayDeque = new ArrayDeque<Integer>();
 
-        firstIntList.addFirst(1);
-        firstIntList.addFirst(2);
+        firstarrayDeque.addFirst(1);
+        firstarrayDeque.addFirst(2);
 
-        secondIntList.addFirst(2);
+        secondarrayDeque.addFirst(2);
 
-        assertFalse(firstIntList.equals(secondIntList));
+        assertFalse(firstarrayDeque.equals(secondarrayDeque));
     }
 
     @Test
     public void checkEqualsFalseOrderTest() {
-        ArrayDeque<Integer> firstIntList = new ArrayDeque<Integer>();
-        ArrayDeque<Integer> secondIntList = new ArrayDeque<Integer>();
+        ArrayDeque<Integer> firstArrayDeque = new ArrayDeque<Integer>();
+        ArrayDeque<Integer> secondArrayDeque = new ArrayDeque<Integer>();
 
-        firstIntList.addFirst(1);
-        firstIntList.addFirst(2);
+        firstArrayDeque.addFirst(1);
+        firstArrayDeque.addFirst(2);
 
-        secondIntList.addFirst(2);
-        secondIntList.addFirst(1);
+        secondArrayDeque.addFirst(2);
+        secondArrayDeque.addFirst(1);
 
-        assertFalse(firstIntList.equals(secondIntList));
+        assertFalse(firstArrayDeque.equals(secondArrayDeque));
     }
 
     @Test
     public void iterateTest() {
-        ArrayDeque<Integer> intList = new ArrayDeque<Integer>();
+        ArrayDeque<Integer> arrayDeque = new ArrayDeque<Integer>();
 
-        intList.addFirst(3);
-        intList.addFirst(2);
-        intList.addFirst(1);
+        for (int i = 0; i < 500000; i++) {
+            arrayDeque.addLast(i);
+        }
 
-        int index = 1;
-        for (int item : intList) {
+        int index = 0;
+        for (int item : arrayDeque) {
             assertEquals("Should be the same number", index, item);
             index++;
         }
+
+        assertEquals(index, 500000);
+    }
+
+    @Test
+    public void hasNextFalseTest() {
+        ArrayDeque<Integer> arrayDeque = new ArrayDeque<Integer>();
+
+        Iterator it = arrayDeque.iterator();
+
+        assertEquals(false, it.hasNext());
+
+        arrayDeque.addLast(1);
+        it.next();
+
+        assertEquals(false, it.hasNext());
+    }
+
+    @Test
+    public void hasNextTrueTest() {
+        ArrayDeque<Integer> arrayDeque = new ArrayDeque<Integer>();
+
+        arrayDeque.addLast(1);
+
+        Iterator it = arrayDeque.iterator();
+
+        assertEquals(true, it.hasNext());
+
+    }
+
+    @Test
+    public void resizeDown() {
+        ArrayDeque<Integer> arrayDeque = new ArrayDeque<Integer>();
+
+        for (int i = 0; i < 100; i++) {
+            arrayDeque.addLast(i);
+        }
+
+        for (int i = 0; i < 99; i++) {
+            arrayDeque.removeFirst();
+        }
+    }
+
+
+    @Test
+    public void maxArrayDequeTest() {
+        class IntComparator implements Comparator<Integer> {
+            @Override
+            public int compare(Integer a, Integer b) {
+                if (a == null && b == null) {
+                    return 0;
+                } else if (a == null) {
+                    return -1;
+                } else if (b == null) {
+                    return 1;
+                }
+                if (a.equals(b)) {
+                    return 0;
+                }
+                return a > b ? 1 : -1;
+            }
+        }
+
+        Comparator<Integer> intComparator = new IntComparator();
+
+        MaxArrayDeque<Integer> maxArrayDeque = new MaxArrayDeque<Integer>(intComparator);
+
+        for (int i = 0; i < 100; i++) {
+            if (i == 34) {
+                maxArrayDeque.addLast(500);
+            }
+            maxArrayDeque.addLast(i);
+        }
+
+        int max = maxArrayDeque.max();
+        assertEquals(500, max);
+
+        int max2 = maxArrayDeque.max(intComparator);
+        assertEquals(500, max2);
     }
 }

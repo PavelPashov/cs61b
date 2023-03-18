@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque <T> implements Deque<T>, Iterable<T> {
+public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
     private T[] items;
 
     private int size;
@@ -11,14 +11,8 @@ public class ArrayDeque <T> implements Deque<T>, Iterable<T> {
 
     private int lastNext;
 
-    private enum ShiftBy {
-        ONE_UP,
-        ONE_DOWN,
-        NORMAL
-    }
 
-
-    public ArrayDeque () {
+    public ArrayDeque() {
         this.items = (T[]) new Object[8];
         this.size = 0;
         this.firstNext = 4;
@@ -33,7 +27,7 @@ public class ArrayDeque <T> implements Deque<T>, Iterable<T> {
     }
 
     private void resize(int capacity) {
-        T[] tempArray = (T []) new Object[capacity];
+        T[] tempArray = (T[]) new Object[capacity];
 
         int index = this.firstNext + 1;
         int count = 0;
@@ -53,7 +47,7 @@ public class ArrayDeque <T> implements Deque<T>, Iterable<T> {
     @Override
     public void addFirst(T item) {
         if (this.size == items.length) {
-            resize(size * 2);
+            resize((int) (size * 1.5));
         }
 
         this.items[firstNext] = item;
@@ -66,7 +60,7 @@ public class ArrayDeque <T> implements Deque<T>, Iterable<T> {
     @Override
     public void addLast(T item) {
         if (this.size() == items.length) {
-            this.resize(this.size * 2);
+            this.resize((int) (size * 1.5));
         }
 
         this.items[lastNext] = item;
@@ -103,7 +97,7 @@ public class ArrayDeque <T> implements Deque<T>, Iterable<T> {
             return null;
         }
 
-        if (this.size > 15 && this.size < items.length / 4) {
+        if (this.size < items.length / 4) {
             this.resize(items.length / 4);
         }
 
@@ -132,7 +126,7 @@ public class ArrayDeque <T> implements Deque<T>, Iterable<T> {
             return null;
         }
 
-        if (this.size > 15 && this.size < items.length / 4) {
+        if (this.size < items.length / 4) {
             this.resize(items.length / 4);
         }
 
@@ -206,18 +200,21 @@ public class ArrayDeque <T> implements Deque<T>, Iterable<T> {
 
     private class AllItemsIterator implements Iterator<T>, Iterable<T> {
         int pointer;
+        int count;
 
         AllItemsIterator() {
             pointer = (firstNext + 1) % items.length;
+            count = 0;
         }
 
         public boolean hasNext() {
-            return pointer != returnOneIndexDown(lastNext);
+            return count < size;
         }
 
         public T next() {
             T item = items[pointer];
-            pointer =  (pointer + 1) % items.length;
+            pointer = (pointer + 1) % items.length;
+            count++;
             return item;
         }
 
