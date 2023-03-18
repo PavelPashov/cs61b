@@ -1,9 +1,6 @@
 package deque;
 
 import java.util.Comparator;
-import java.util.Iterator;
-
-import static org.junit.Assert.assertEquals;
 
 public class MaxArrayDeque<T> extends ArrayDeque<T> {
     private final Comparator<T> comparator;

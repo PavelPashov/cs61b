@@ -9,10 +9,10 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
 
     public LinkedListDeque() {
         this.size = 0;
-        Node<T> sentinel = new Node<>(null);
-        sentinel.prev = null;
-        sentinel.next = null;
-        this.sentinel = sentinel;
+        Node<T> newNode = new Node<>(null);
+        newNode.prev = null;
+        newNode.next = null;
+        this.sentinel = newNode;
     }
 
     private static class Node<T> {
